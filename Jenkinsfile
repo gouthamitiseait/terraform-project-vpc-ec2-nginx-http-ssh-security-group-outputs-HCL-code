@@ -1,48 +1,45 @@
 pipeline {
     agent any
+
     stages {
-        stage ('pull code from github') {
+
+        stage('Pull Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/gouthamitiseait/terraform-s3-bucket-create-and-host-static-website-IAC-code-in-HCL--project'
+                git branch: 'master',
+                url: 'https://github.com/gouthamitiseait/terraform-project-vpc-ec2-nginx-http-ssh-security-group-outputs-HCL-code.git'
             }
         }
-   
-        stage ('terraform apply & init') {
+
+        stage('Terraform Init') {
             steps {
-                withAWS(credentials: 'aws-credentials-gouthami', region: 'us-east-1') {
+                withAWS(credentials: 'aws-credentials-gouthami', region: 'eu-north-1') {
                     sh 'terraform init'
-                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                sh 'terraform validate'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                withAWS(credentials: 'aws-credentials-gouthami', region: 'eu-north-1') {
                     sh 'terraform apply -auto-approve'
                 }
             }
         }
-        
-        stage ('upload files to s3 bucket') {
-            steps {
-                withAWS(credentials: 'aws-credentials-gouthami', region: 'us-east-1') {
-                    sh '''
-                        BUCKET_NAME=$(terraform output -raw name | cut -d'.' -f1)
-                        aws s3 sync ./ s3://$BUCKET_NAME \
-                          --exclude ".git/*" \
-                          --exclude ".terraform/*" \
-                          --exclude "terraform.lock.hcl" \
-                          --exclude "*.tf" \
-                          --exclude "*.hcl" \
-                          --exclude "Jenkinsfile" \
-                          --exclude "*.md"
-                    '''
-                }
-            }
-        }
     }
-    
+
     post {
         success {
-            echo 'static website deployment successful'
-            sh 'terraform output -raw name'
+            echo 'EC2 deployment successful'
         }
+
         failure {
-            echo 'static website deployment failure'
+            echo 'EC2 deployment failed'
         }
     }
 }
