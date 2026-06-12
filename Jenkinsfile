@@ -12,7 +12,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                withAWS(credentials: 'aws-credentials-gouthami', region: 'eu-north-1') {
+                withAWS(credentials: 'aws-creds-id', region: 'ap-south-1') {
                     sh 'terraform init'
                 }
             }
@@ -26,7 +26,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                withAWS(credentials: 'aws-credentials-gouthami', region: 'eu-north-1') {
+                withAWS(credentials: 'aws-creds-id', region: 'ap-south-1') {
                     sh 'terraform apply -auto-approve'
                 }
             }
