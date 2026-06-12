@@ -1,10 +1,10 @@
-
 resource "aws_instance" "nginx-server" {
-    ami="ami-0c4fc5dcabc9df21d"
+    ami="ami-03bb6d83c60fc5f7c"
     instance_type="t3.micro"
     subnet_id=aws_subnet.public-subnet.id
     vpc_security_group_ids = [aws_security_group.nginx-sg.id]
     associate_public_ip_address = true
+
     user_data = <<-EOF
               #!/bin/bash
               sudo yum upgrade -y && sudo yum update -y
@@ -14,10 +14,7 @@ resource "aws_instance" "nginx-server" {
               sudo systemctl status nginx
               EOF
 
-    
-
     tags ={
         Name="nginx-server"
     }
-  
 }
